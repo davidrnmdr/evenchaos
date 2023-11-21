@@ -6,7 +6,7 @@ import { SubscribeButton } from "../components/SubscribeButton";
 import { stripe } from "../services/stripe";
 import { HomeProps } from "../types/HomeProps";
 
-export default function Home(props: HomeProps) {
+export default function Home({ product }: HomeProps) {
   return (
     <>
       <Head>
@@ -20,7 +20,7 @@ export default function Home(props: HomeProps) {
           </h1>
           <p>
             Get access to all the publications <br />
-            <span>for {props.product.amount} month</span>
+            <span>for {product.amount} month</span>
           </p>
           <SubscribeButton />
         </section>
