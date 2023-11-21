@@ -6,13 +6,15 @@ import { fauna } from "../../services/fauna";
 import { query } from "faunadb";
 import { FaunaUser } from "../../types/FaunaUser";
 import { getSession } from "next-auth/react";
+import { authOptions } from "./auth/[...nextauth]";
+import { getServerSession } from "next-auth";
 
 export default async function subscribe(
   request: NextApiRequest,
   response: NextApiResponse
 ) {
   if (request.method == "POST") {
-    const session = await getSession({ req: request });
+    const session = await getServerSession(request, response, authOptions);
 
     const user = await fauna.query<FaunaUser>(
       query.Get(
