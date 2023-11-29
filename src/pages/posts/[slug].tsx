@@ -4,7 +4,7 @@ import {
   NextApiRequest,
   NextApiResponse,
 } from "next";
-import { getServerSession } from "next-auth";
+import { Session, getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { prismic } from "../../services/prismic";
 import { RichText } from "prismic-dom";
@@ -41,7 +41,18 @@ export const getServerSideProps: GetServerSideProps = async ({
   params,
 }) => {
   const { slug } = params;
-  const session = auth(req, res);
+  const session = (await auth(req, res)) as Session & {
+    activeSubscription: string | null;
+  };
+
+  if (!session.activeSubscription) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
 
   const response = await prismic.getByUID("post", String(slug));
 
@@ -64,11 +75,11 @@ export const getServerSideProps: GetServerSideProps = async ({
   };
 };
 
-export function auth(
+export async function auth(
   ...args:
     | [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]]
     | [NextApiRequest, NextApiResponse]
     | []
 ) {
-  return getServerSession(...args, authOptions);
+  return await getServerSession(...args, authOptions);
 }
