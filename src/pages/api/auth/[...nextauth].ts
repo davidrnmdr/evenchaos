@@ -55,17 +55,18 @@ export const authOptions: NextAuthOptions = {
     },
 
     async signIn({ user, account, profile, email, credentials }) {
-      console.log(`the email is ${email} or ${user.email}`);
       try {
         await fauna.query(
           q.If(
             q.Not(
-              q.Exists(q.Match(q.Index("user_by_email"), q.Casefold(email)))
+              q.Exists(
+                q.Match(q.Index("user_by_email"), q.Casefold(user.email))
+              )
             ),
             q.Create(q.Collection("users"), {
-              data: { email: email },
+              data: { email: user.email },
             }),
-            q.Get(q.Match(q.Index("user_by_email"), q.Casefold(email)))
+            q.Get(q.Match(q.Index("user_by_email"), q.Casefold(user.email)))
           )
         );
         return true;
