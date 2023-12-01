@@ -39,11 +39,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         secret,
         process.env.STRIPE_WEBHOOK_SECRET
       );
+      console.log(`the event is ${event}`);
     } catch (e) {
       res.status(400).send(`Webhook error: ${e.message}`);
     }
 
-    const { type } = event;
+    const type = event.type;
 
     if (relevantEvents.has(type)) {
       try {
