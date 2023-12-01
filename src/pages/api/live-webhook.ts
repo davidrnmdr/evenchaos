@@ -78,3 +78,7 @@ app.post(
     res.status(200).json({ ok: true });
   }
 );
+
+app.listen(4242, () => {
+  console.log("Running on port 4242");
+});
