@@ -28,7 +28,7 @@ const relevantEvents = new Set([
   "customer.subscription.updated",
 ]);
 
-app.post("/api/express-webhook", async (req, res) => {
+app.post("/api/live-webhook", async (req, res) => {
   const buf = await buffer(req);
   const secret = req.headers["stripe-signature"];
 
