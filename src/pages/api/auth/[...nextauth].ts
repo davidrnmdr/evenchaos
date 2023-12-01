@@ -12,7 +12,8 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
       authorization: {
         params: {
-          scope: "read:user user:email",
+          url: "https://github.com/login/oauth/authorize",
+          params: { scope: "read:user user:email" },
         },
       },
     }),
@@ -41,6 +42,7 @@ export const authOptions: NextAuthOptions = {
           )
         );
 
+        console.log(session.user.email);
         return {
           ...session,
           activeSubscription: userActiveSubscription,
