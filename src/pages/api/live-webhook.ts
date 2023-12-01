@@ -6,21 +6,6 @@ import { saveSubscription } from "./_lib/manageSubscription";
 import express from "express";
 
 const app = express();
-app.use(express.json());
-
-async function buffer(readable: Readable) {
-  const chunks = [];
-  for await (const chunk of readable) {
-    chunks.push(typeof chunk == "string" ? Buffer.from(chunk) : chunk);
-  }
-  return Buffer.concat(chunks);
-}
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
 
 const relevantEvents = new Set([
   "checkout.session.completed",
@@ -29,17 +14,10 @@ const relevantEvents = new Set([
 ]);
 
 app.post("/api/live-webhook", async (req, res) => {
-  const buf = await buffer(req);
-  const secret = req.headers["stripe-signature"];
-
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(
-      buf,
-      secret,
-      process.env.STRIPE_WEBHOOK_SECRET
-    );
+    event = req.body;
   } catch (e) {
     res.status(400).send(`Webhook error: ${e.message}`);
     return;
