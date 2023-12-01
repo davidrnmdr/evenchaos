@@ -2,18 +2,18 @@ import { Readable } from "stream";
 import Stripe from "stripe";
 import { stripe } from "../../services/stripe";
 import { saveSubscription } from "./_lib/manageSubscription";
-import bodyParser from "body-parser";
 
+import bodyParser from "body-parser";
 import express from "express";
+
+const app = express();
+app.use(bodyParser.json());
 
 export const config = {
   api: {
     bodyParser: true,
   },
 };
-
-const app = express();
-app.use(bodyParser.json());
 
 const relevantEvents = new Set([
   "checkout.session.completed",
@@ -22,19 +22,25 @@ const relevantEvents = new Set([
 ]);
 
 app.post(
-  "/api/live-webhook",
+  "/api/express-webhook",
   bodyParser.raw({ type: "application/json" }),
   async (req, res) => {
+    const secret = req.headers["stripe-signature"];
+
     let event: Stripe.Event;
 
     try {
-      event = req.body;
+      event = stripe.webhooks.constructEvent(
+        req.body,
+        secret,
+        process.env.STRIPE_WEBHOOK_SECRET
+      );
     } catch (e) {
       res.status(400).send(`Webhook error: ${e.message}`);
       return;
     }
 
-    const type = event.type;
+    const { type } = event;
 
     if (relevantEvents.has(type)) {
       try {
