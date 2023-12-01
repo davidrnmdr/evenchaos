@@ -42,7 +42,6 @@ export const authOptions: NextAuthOptions = {
           )
         );
 
-        console.log(session.user.email);
         return {
           ...session,
           activeSubscription: userActiveSubscription,
@@ -56,6 +55,7 @@ export const authOptions: NextAuthOptions = {
     },
 
     async signIn({ user, account, profile, email, credentials }) {
+      console.log(`the email is ${email} or ${user.email}`);
       try {
         await fauna.query(
           q.If(
