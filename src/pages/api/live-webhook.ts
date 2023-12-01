@@ -2,10 +2,12 @@ import { Readable } from "stream";
 import Stripe from "stripe";
 import { stripe } from "../../services/stripe";
 import { saveSubscription } from "./_lib/manageSubscription";
+import bodyParser from "body-parser";
 
 import express from "express";
 
 const app = express();
+app.use(bodyParser.json());
 
 const relevantEvents = new Set([
   "checkout.session.completed",
