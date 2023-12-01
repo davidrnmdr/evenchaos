@@ -58,14 +58,12 @@ export const authOptions: NextAuthOptions = {
         await fauna.query(
           q.If(
             q.Not(
-              q.Exists(
-                q.Match(q.Index("user_by_email"), q.Casefold(user.email))
-              )
+              q.Exists(q.Match(q.Index("user_by_email"), q.Casefold(email)))
             ),
             q.Create(q.Collection("users"), {
-              data: { email: user.email },
+              data: { email: email },
             }),
-            q.Get(q.Match(q.Index("user_by_email"), q.Casefold(user.email)))
+            q.Get(q.Match(q.Index("user_by_email"), q.Casefold(email)))
           )
         );
         return true;
