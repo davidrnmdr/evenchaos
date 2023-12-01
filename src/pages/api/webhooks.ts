@@ -14,7 +14,7 @@ async function buffer(readable: Readable) {
 
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: true,
   },
 };
 
@@ -25,8 +25,10 @@ const relevantEvents = new Set([
 ]);
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
+  console.log(`the req method is ${req.method}`);
   if (req.method == "POST") {
     const buf = await buffer(req);
+    console.log(`the buffer is ${buf}`);
     const secret = req.headers["stripe-signature"];
 
     let event: Stripe.Event;
