@@ -70,8 +70,7 @@ export const authOptions: NextAuthOptions = {
           )
         );
         return true;
-      } catch (e) {
-        console.log(e.message);
+      } catch {
         return false;
       }
     },
