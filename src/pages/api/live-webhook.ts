@@ -6,6 +6,14 @@ import { saveSubscription } from "./_lib/manageSubscription";
 import bodyParser from "body-parser";
 import express from "express";
 
+async function buffer(readable: Readable) {
+  const chunks = [];
+  for await (const chunk of readable) {
+    chunks.push(typeof chunk == "string" ? Buffer.from(chunk) : chunk);
+  }
+  return Buffer.concat(chunks);
+}
+
 const app = express();
 app.use(bodyParser.json());
 
@@ -25,17 +33,23 @@ app.post(
   "/api/express-webhook",
   bodyParser.raw({ type: "application/json" }),
   async (req, res) => {
+    const buf = await buffer(req);
     const secret = req.headers["stripe-signature"];
 
     let event: Stripe.Event;
 
     try {
-      event = stripe.webhooks.constructEvent(
-        req.body,
-        secret,
-        process.env.STRIPE_WEBHOOK_SECRET
-      );
+      try {
+        event = stripe.webhooks.constructEvent(
+          buf,
+          secret,
+          process.env.STRIPE_WEBHOOK_SECRET
+        );
+      } catch {
+        throw new Error("failed event construction");
+      }
     } catch (e) {
+      console.log(e.message);
       res.status(400).send(`Webhook error: ${e.message}`);
       return;
     }
