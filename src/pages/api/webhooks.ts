@@ -30,11 +30,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     const secret = req.headers["stripe-signature"];
 
-    let event;
+    let event: Promise<Stripe.Event>;
 
     try {
       console.log(`maybe will log the event`);
-      event = stripe.webhooks.constructEvent(
+      event = stripe.webhooks.constructEventAsync(
         buf,
         secret,
         process.env.STRIPE_WEBHOOK_SECRET
@@ -44,14 +44,15 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       res.status(400).send(`Webhook error: ${e.message}`);
     }
 
-    const { type } = event;
+    const type = (await event).type;
 
     if (relevantEvents.has(type)) {
       try {
         switch (type) {
           case "customer.subscription.updated":
           case "customer.subscription.deleted":
-            const subscription = event.data.object as Stripe.Subscription;
+            const subscription = (await event).data
+              .object as Stripe.Subscription;
 
             await saveSubscription(
               subscription.id,
@@ -62,7 +63,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             break;
 
           case "checkout.session.completed":
-            const checkoutSession = event.data
+            const checkoutSession = (await event).data
               .object as Stripe.Checkout.Session;
 
             saveSubscription(
