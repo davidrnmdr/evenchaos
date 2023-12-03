@@ -25,7 +25,6 @@ const relevantEvents = new Set([
 ]);
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  console.log(req);
   if (req.method == "POST") {
     const buf = await buffer(req);
 
@@ -34,11 +33,13 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     let event: Stripe.Event;
 
     try {
+      console.log(`maybe will log the event`);
       event = stripe.webhooks.constructEvent(
         buf,
         secret,
         process.env.STRIPE_WEBHOOK_SECRET
       );
+      console.log(`this is the event ${event}`);
     } catch (e) {
       res.status(400).send(`Webhook error: ${e.message}`);
     }
