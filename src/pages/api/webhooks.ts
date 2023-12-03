@@ -43,7 +43,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       res.status(400).send(`Webhook error: ${e.message}`);
     }
 
-    const type = event.type;
+    const { type } = event;
 
     if (relevantEvents.has(type)) {
       try {
@@ -78,7 +78,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       }
     }
 
-    res.send(200);
+    res.status(200).json({ ok: true });
   } else {
     res.setHeader("allow", ["POST"]);
     res.status(405).end("Method not allowed");
