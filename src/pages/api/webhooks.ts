@@ -44,6 +44,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     const { type } = event;
+    console.log(`this is the event ${event}`);
 
     if (relevantEvents.has(type)) {
       try {
