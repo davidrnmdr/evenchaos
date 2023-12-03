@@ -36,7 +36,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       console.log(`maybe will log the event`);
       event = await stripe.webhooks.constructEventAsync(
         buf,
-        secret,
+        secret.toString(),
         process.env.STRIPE_WEBHOOK_SECRET
       );
       console.log(`this is the event ${event}`);
