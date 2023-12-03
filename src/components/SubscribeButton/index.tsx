@@ -20,18 +20,18 @@ export function SubscribeButton() {
 
     if (sessionData.activeSubscription) {
       router.push("/posts");
-    }
+    } else {
+      try {
+        const response = await api.post("/subscribe");
 
-    try {
-      const response = await api.post("/subscribe");
+        const { sessionId } = response.data;
 
-      const { sessionId } = response.data;
+        const stripe = await getStripeJs();
 
-      const stripe = await getStripeJs();
-
-      stripe.redirectToCheckout({ sessionId });
-    } catch (error) {
-      console.error(error);
+        stripe.redirectToCheckout({ sessionId });
+      } catch (error) {
+        console.error(error);
+      }
     }
   }
 
