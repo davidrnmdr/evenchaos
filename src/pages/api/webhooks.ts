@@ -14,7 +14,7 @@ async function buffer(readable: Readable) {
 
 export const config = {
   api: {
-    bodyParser: true,
+    bodyParser: false,
   },
 };
 
@@ -34,9 +34,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     try {
       console.log(`maybe will log the event`);
-      event = await stripe.webhooks.constructEventAsync(
+      event = stripe.webhooks.constructEvent(
         buf,
-        buf,
+        secret,
         process.env.STRIPE_WEBHOOK_SECRET
       );
       console.log(`this is the event ${event}`);
@@ -44,15 +44,14 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       res.status(400).send(`Webhook error: ${e.message}`);
     }
 
-    const type = (await event).type;
+    const type = event.type;
 
     if (relevantEvents.has(type)) {
       try {
         switch (type) {
           case "customer.subscription.updated":
           case "customer.subscription.deleted":
-            const subscription = (await event).data
-              .object as Stripe.Subscription;
+            const subscription = event.data.object as Stripe.Subscription;
 
             await saveSubscription(
               subscription.id,
@@ -63,7 +62,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             break;
 
           case "checkout.session.completed":
-            const checkoutSession = (await event).data
+            const checkoutSession = event.data
               .object as Stripe.Checkout.Session;
 
             saveSubscription(
